@@ -1,6 +1,5 @@
 import "../css/style.css";
 import "../css/theme.css";
-import { revalidatePath, revalidateTag } from 'next/cache';
 
 
 import { API_URL } from "@/app/components/GraphQl/homeQuery";
@@ -20,8 +19,7 @@ const page = async() => {
       }
     }
     `;
-    revalidatePath('/contact/');
-    revalidateTag('result');
+
 
 
     const response = await fetch(API_URL, {
@@ -32,7 +30,7 @@ const page = async() => {
       body: JSON.stringify({
         query: __query,
       }),
-    },{ next: { tags: ['result'] } });
+    });
 
     const data = await response.json();
 
