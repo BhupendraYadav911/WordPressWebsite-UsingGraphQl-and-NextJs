@@ -1,12 +1,19 @@
+import { revalidateTag } from 'next/cache';
+import { API_URL } from "../components/GraphQl/homeQuery";
 import "../css/style.css";
 import "../css/theme.css";
 
 
-import { API_URL } from "@/app/components/GraphQl/homeQuery";
-const page = async() => {
-  let result;
+export const metadata= {
+    title: "Dynamic Data- Next Js"
+}
 
-  const option = async () => {
+let result1;
+
+export const revalidate= 10;
+
+
+export default async function Page(){
     const __query = `
     query GetContact{
       page(id: "/contact/", idType: URI) {
@@ -19,33 +26,75 @@ const page = async() => {
       }
     }
     `;
+    // const method = {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //         query: __query,
+    //     }),
+    //   }
 
+    revalidateTag('result');
+      const result= await fetch(API_URL,{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }, body: JSON.stringify({
+          query: __query,
+        }),
+             },{
+              next: { tags: ['result'] }
+             })
+      // .then(response => response.json())
+      // .then(json => console.log(json))
 
+     
 
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: __query,
-      }),
-    });
+      const data = await result.json();  
 
-    const data = await response.json();
+    // const response1 = await fetch("https://jsonplaceholder.typicode.com/posts" , {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //         query: __query,
+    //     }),
+    //   } , {
+    //     // next : {revalidate:10}
+    // })
 
-    result = data.data.page.content;
-    // console.log(data);
-  };
-  function createMarkup(c) {
-    return { __html: c };
-  }
-  await option();
-  return (
-    <section>
-      {<div dangerouslySetInnerHTML={createMarkup(result)}></div>}
-    </section>
-  );
-}
+    // .then(response => response.json())
+    // .then(json => console.log(json))
 
-export default page
+// const data = await response.json();
+
+    result1 = data.data.page.content;
+    // const pages = data.page
+    // console.log(result1,"kikiiiasdasdasd");
+    function createMarkup(c) {
+      return { __html: c };
+    }
+
+    return (
+      <>  
+      {/* {result1} */}
+      <section>
+
+      {<h3 dangerouslySetInnerHTML={createMarkup(result1)}></h3>}
+      </section>
+      {/* {
+        pages.map((item)=>{
+          return(
+
+            <h1>{item.content}</h1>
+          )
+
+        })
+      } */}
+               
+      </>
+        )
+    }
